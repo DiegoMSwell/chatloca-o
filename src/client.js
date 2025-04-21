@@ -21,7 +21,7 @@ export function prepararConexaoWhatsapp() {
         // Captura todas as mensagens recebidas
         client.on("message", async (msg) => {
             if (msg.type === "chat") {
-                processarMensagem(client, msg)
+                msg.reply("📨 Recebido! Seu bot está vivo 🔥")
             }
         })
 
