@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+// Render define a porta via variável de ambiente
 const PORT = process.env.PORT || 3000;
 
 app.get('/', (req, res) => {
