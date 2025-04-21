@@ -22,5 +22,6 @@ app.get("/whatsapp", async (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`:::: ✅ Server running on port ${port}...`);
+    console.log(`✅ Servidor rodando: http://localhost:${port} (Render usará essa porta automaticamente)`)
+
 })
