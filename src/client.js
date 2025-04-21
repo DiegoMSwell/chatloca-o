@@ -1,5 +1,5 @@
 import { default as whatsapp } from "whatsapp-web.js"
-
+import qrImage from "qr-image"
 import { processarMensagem } from "./chat.js"
 
 export function prepararConexaoWhatsapp() {
