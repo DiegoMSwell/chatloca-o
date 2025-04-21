@@ -70,11 +70,13 @@ function montarMenu() {
 export async function processarMensagem(client, msg) {
     const texto = msg.body.trim().toLowerCase()
     const numero = msg.from
-
-    console.log("Mensagem recebida:", { numero, texto })
+    console.log("📩 Mensagem recebida:", { numero, texto })
+    console.log("menuLiberado?", menuLiberado[numero])
+    console.log("conversaEncerrada?", conversasEncerradas[numero])
 
     // Verifica se a mensagem é uma saudação
     if (saudacoes.includes(texto)) {
+        console.log({ texto, numero, menuLiberado: menuLiberado[numero] })
         menuLiberado[numero] = true
         await simularDigitando(msg)
         await client.sendMessage(
@@ -86,6 +88,7 @@ export async function processarMensagem(client, msg) {
 
     // Verifica se a conversa foi encerrada
     if (conversasEncerradas[numero]) {
+
         if (texto !== "menu") {
             await client.sendMessage(
                 numero,
