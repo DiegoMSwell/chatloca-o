@@ -1,36 +1,33 @@
-import { default as whatsapp } from "whatsapp-web.js"
-import qrImage from "qr-image"
-import { processarMensagem } from "./chat.js"
+import { Client, LocalAuth } from "whatsapp-web.js";
+import qrImage from "qr-image";
+import { processarMensagem } from "./chat.js";
 
 export function prepararConexaoWhatsapp() {
-    const client = new whatsapp.Client({
-        authStrategy: new whatsapp.LocalAuth(), // Salva a sessão para evitar reescanear o QR
+    const client = new Client({
+        authStrategy: new LocalAuth(), // Salva a sessão automaticamente
         puppeteer: {
             headless: true,
-            args: ["--no-sandbox", "--disable-setuid-sandbox"]
-        }
-    })
+            args: ["--no-sandbox", "--disable-setuid-sandbox"], // Obrigatório no Render!
+        },
+    });
 
     return new Promise((resolve, reject) => {
         client.on("ready", () => {
-            console.log(
-                "✅ WhatsApp conectado com sucesso! Bot da Brito’s Locações está ativo."
-            )
-        })
+            console.log("✅ WhatsApp conectado com sucesso! Bot da Brito’s Locações está ativo.");
+        });
 
-        // Captura todas as mensagens recebidas
         client.on("message", async (msg) => {
             if (msg.type === "chat") {
-                console.log("📩 Mensagem recebida:", msg.body)
-                await processarMensagem(client, msg)
+                console.log("📩 Mensagem recebida:", msg.body);
+                await processarMensagem(client, msg);
             }
-        })
+        });
 
         client.on("qr", (qr) => {
-            const qrCode = qrImage.image(qr, { type: "png" })
-            resolve(qrCode)
-        })
+            const qrCode = qrImage.image(qr, { type: "png" });
+            resolve(qrCode);
+        });
 
-        client.initialize()
-    })
+        client.initialize();
+    });
 }
