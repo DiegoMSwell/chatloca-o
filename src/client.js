@@ -1,33 +1,38 @@
-import { Client, LocalAuth } from "whatsapp-web.js";
-import qrImage from "qr-image";
-import { processarMensagem } from "./chat.js";
+import { Client, LocalAuth } from "whatsapp-web.js"
+import qrImage from "qr-image"
 
 export function prepararConexaoWhatsapp() {
     const client = new Client({
-        authStrategy: new LocalAuth(), // Salva a sessão automaticamente
+        authStrategy: new LocalAuth(),
         puppeteer: {
-            headless: true,
-            args: ["--no-sandbox", "--disable-setuid-sandbox"], // Obrigatório no Render!
-        },
-    });
+            headless: true, // Ambiente sem interface gráfica
+            args: ["--no-sandbox", "--disable-setuid-sandbox"]
+        }
+    })
 
     return new Promise((resolve, reject) => {
         client.on("ready", () => {
-            console.log("✅ WhatsApp conectado com sucesso! Bot da Brito’s Locações está ativo.");
-        });
+            console.log("✅ WhatsApp conectado com sucesso!")
+        })
 
         client.on("message", async (msg) => {
-            if (msg.type === "chat") {
-                console.log("📩 Mensagem recebida:", msg.body);
-                await processarMensagem(client, msg);
-            }
-        });
+            console.log("📩 Mensagem recebida:", msg.body)
+        })
 
         client.on("qr", (qr) => {
-            const qrCode = qrImage.image(qr, { type: "png" });
-            resolve(qrCode);
-        });
+            const qrCode = qrImage.image(qr, { type: "png" })
+            resolve(qrCode) // Retorna o QR code gerado
+        })
 
-        client.initialize();
-    });
+        client.on("auth_failure", () => {
+            console.error("Erro de autenticação. Verifique sua sessão.")
+            reject(new Error("Erro de autenticação"))
+        })
+
+        client.on("disconnected", (reason) => {
+            console.log("Cliente desconectado:", reason)
+        })
+
+        client.initialize()
+    })
 }
