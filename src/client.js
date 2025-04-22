@@ -1,11 +1,14 @@
-import { Client, LocalAuth } from "whatsapp-web.js"
+import whatsapp from "whatsapp-web.js"
 import qrImage from "qr-image"
+import { processarMensagem } from "./chat.js"
+
+const { Client, LocalAuth } = whatsapp
 
 export function prepararConexaoWhatsapp() {
     const client = new Client({
-        authStrategy: new LocalAuth(),
+        authStrategy: new LocalAuth(), // Salva a sessão
         puppeteer: {
-            headless: true, // Ambiente sem interface gráfica
+            headless: true,
             args: ["--no-sandbox", "--disable-setuid-sandbox"]
         }
     })
@@ -16,21 +19,20 @@ export function prepararConexaoWhatsapp() {
         })
 
         client.on("message", async (msg) => {
-            console.log("📩 Mensagem recebida:", msg.body)
+            if (msg.type === "chat") {
+                console.log("📩 Mensagem recebida:", msg.body)
+                await processarMensagem(client, msg)
+            }
         })
 
         client.on("qr", (qr) => {
             const qrCode = qrImage.image(qr, { type: "png" })
-            resolve(qrCode) // Retorna o QR code gerado
+            resolve(qrCode)
         })
 
-        client.on("auth_failure", () => {
-            console.error("Erro de autenticação. Verifique sua sessão.")
-            reject(new Error("Erro de autenticação"))
-        })
-
-        client.on("disconnected", (reason) => {
-            console.log("Cliente desconectado:", reason)
+        client.on("auth_failure", (msg) => {
+            console.error("❌ Falha de autenticação:", msg)
+            reject(new Error("Falha na autenticação"))
         })
 
         client.initialize()
